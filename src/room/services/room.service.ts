@@ -39,7 +39,7 @@ export class RoomService {
         }
       }
     }
-    // console.log(111,createData)
+    console.log(111)
     await this.repo.save(arr);
   }
 
