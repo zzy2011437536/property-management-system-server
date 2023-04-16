@@ -25,7 +25,6 @@ export class RoomService {
   protected readonly roomUserRepo: Repository<RoomUser>;
 
   async addRoom(): Promise<any> {
-    console.log(123123);
     const arr = [];
     for (let i = 0; i < 4; i++) {
       for (let j = 1; j < 10; j++) {
@@ -33,13 +32,14 @@ export class RoomService {
           const createData = this.repo.create({
             zone: map.get(i),
             name: `${j}0${k}`,
-            area: Number(Math.random() * 30 + 90).toFixed(1),
+            area: Number(Number(Math.random() * 30 + 90).toFixed(1)),
+            salePrice: Number(Number(Math.random() * 4000 + 15000).toFixed(0)),
           });
           arr.push(createData);
         }
       }
     }
-    console.log(111)
+
     await this.repo.save(arr);
   }
 
@@ -61,10 +61,8 @@ export class RoomService {
     );
   }
 
-  async getRoomList(
-    roomListDto: RoomListDto,
-  ): Promise<IHttpResultPaginate<Room>> {
-    const { page, limit, status, zone } = roomListDto;
+  async getRoomList(roomListDto: RoomListDto): Promise<Room[]> {
+    const { status, zone } = roomListDto;
     const qb = this.repo.createQueryBuilder('room');
     if (status) {
       qb.where('room.status = :status', { status });
@@ -72,18 +70,8 @@ export class RoomService {
     if (zone) {
       qb.andWhere('room.zone = :zone', { zone });
     }
-    const [list, total] = await qb
-      .take(limit)
-      .skip(limit * (page - 1))
-      .orderBy('room.id', 'ASC')
-      .getManyAndCount();
-    return {
-      total,
-      perPage: limit,
-      currentPage: page,
-      lastPage: Math.ceil(total / limit),
-      list: plainToInstance(Room, list),
-    };
+    const data = await qb.getMany();
+    return plainToInstance(Room, data);
   }
 
   async getRoomInfo(id: number): Promise<Room> {
@@ -104,8 +92,8 @@ export class RoomService {
 
   async delUserInRoom(roomId: number, userId: number) {
     await this.roomUserRepo.delete({
-        userId,
-        roomId
-    })
+      userId,
+      roomId,
+    });
   }
 }

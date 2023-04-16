@@ -15,8 +15,7 @@ import { User } from 'src/user/entities/user.entity';
 
 export enum RoomStatusType {
   saling = 0, // 出售中
-  pendingCheckIn = 1, //待入住
-  haveCheckedIn = 2, //已入住
+  soldOut = 1, //已出售
 }
 
 export enum RoomZoneType {
@@ -42,16 +41,21 @@ export class Room extends BaseEntity {
   status: RoomStatusType;
 
   @Column()
-  area: Number;
+  area: number;
 
   @Column()
   description: string;
+
+  @Column({
+    name: 'sale_price',
+  })
+  salePrice: number;
 
   @CreateDateColumn({
     name: 'created_at',
   })
   @Transform(({ value }) => moment(value).format('YYYY.MM.DD HH:mm:ss'))
-  createAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({
     name: 'updated_at',
@@ -59,17 +63,17 @@ export class Room extends BaseEntity {
   @Transform(({ value }) => moment(value).format('YYYY.MM.DD HH:mm:ss'))
   updatedAt: Date;
 
-@ManyToMany(type => User)
-@JoinTable({
-    name: "property_real_estate_room__property_real_estate_user",
+  @ManyToMany((type) => User)
+  @JoinTable({
+    name: 'property_real_estate_room__property_real_estate_user',
     joinColumn: {
-        name: "room_id",
-        referencedColumnName: "id"
+      name: 'room_id',
+      referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-        name: "user_id",
-        referencedColumnName: "id"
-    }
-})
-users: User[];
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+  })
+  users: User[];
 }

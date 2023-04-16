@@ -6,6 +6,8 @@ import {
   Req,
   Res,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisteredUser } from '../dto/registered-user.dto';
@@ -18,27 +20,20 @@ import { UserListDto } from '../dto/user-list.dto';
 import { RolesGuard } from '../guards/is-admin.guard';
 import { ChangeUserStatusDto } from '../dto/change-user-status.dto';
 @Controller('/user')
+@UsePipes(new ValidationPipe())
 export class UserController {
   @Inject(UserService)
   protected readonly service: UserService;
-  @Post('/create')
+  @Post('/register')
   async create(@Body() registeredUserDto: RegisteredUser): Promise<void> {
     return this.service.create(registeredUserDto);
   }
   @Post('/login')
   async login(
     @Body() loginUser: LoginUserDto,
-    @Res() res: Response,
-  ): Promise<void> {
-      const returnData = await this.service.login(loginUser);
-      const { code, message, ticket } = returnData;
-      if (code === HttpStatus.OK) {
-        res.cookie('ticket', ticket, {
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-          httpOnly: true,
-        });
-      }
-      res.json({ code, message });
+  ): Promise<{ code: number; message: string; ticket?: string }> {
+    return this.service.login(loginUser);
+    // const { code, message, ticket } = returnData;
   }
 
   @Post('/exit')
@@ -51,15 +46,22 @@ export class UserController {
   }
 
   @Post('/getUserInfo')
-  async getUserInfo(@Req() req: Request): Promise<User> {
-    const ticket = req.cookies['ticket'];
+  async getUserInfo(@Body('ticket') ticket: string): Promise<User> {
+    // const ticket = req.cookies['ticket'];
     return this.service.getUserDataByTicket(ticket);
   }
 
+  //TODO 后续想想可以保存其他数据
+  @Post('/saveUserInfo')
+  async saveUserInfo(
+    @Body('ticket') ticket: string,
+    @Body('password') password: string,
+  ): Promise<User> {
+    return this.service.saveUserInfo(ticket, password);
+  }
+
   @Post('/getUserList')
-  async getUserList(
-    @Body() userListDto: UserListDto,
-  ): Promise<IHttpResultPaginate<User>> {
+  async getUserList(@Body() userListDto: UserListDto): Promise<User[]> {
     return this.service.getUserList(userListDto);
   }
 

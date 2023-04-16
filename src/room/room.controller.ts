@@ -25,22 +25,28 @@ export class RoomController {
   }
 
   @Post('/getRoomList')
-  async getRoomList(@Body() roomListDto:RoomListDto):Promise<IHttpResultPaginate<Room>>{
-      return this.service.getRoomList(roomListDto)
+  async getRoomList(@Body() roomListDto: RoomListDto): Promise<Room[]> {
+    return this.service.getRoomList(roomListDto);
   }
 
   @Post('/getRoomInfo')
-  async getRoomInfo(@Body('id') id:number):Promise<Room>{
-    return this.service.getRoomInfo(id)
-  } 
+  async getRoomInfo(@Body('id') id: number): Promise<Room> {
+    return this.service.getRoomInfo(id);
+  }
 
   @Post('/addUserInRoom')
-  async addUserInRoom(@Body('userId') userId:number,@Body('roomId') roomId:number):Promise<RoomUser>{
-    return this.service.addUserInRoom(roomId,userId)
-  } 
+  async addUserInRoom(
+    @Body('userId') userId: number,
+    @Body('roomId') roomId: number,
+  ): Promise<RoomUser> {
+    return this.service.addUserInRoom(roomId, userId);
+  }
 
   @Post('/delUserInRoom')
-  async delUserInRoom(@Body('userId') userId:number,@Body('roomId') roomId:number):Promise<void>{
-    return this.service.delUserInRoom(roomId,userId)
-  } 
+  async delUserInRoom(
+    @Body('userId') userId: number,
+    @Body('roomId') roomId: number,
+  ): Promise<void> {
+    return this.service.delUserInRoom(roomId, userId);
+  }
 }

@@ -27,7 +27,7 @@ export class UserService {
   async create(RegisteredUser: RegisteredUser): Promise<void> {
     const judgeUserExist = await this.repo.count({
       where: {
-        account: RegisteredUser.account,
+        userName: RegisteredUser.userName,
       },
     });
     if (judgeUserExist) {
@@ -51,19 +51,18 @@ export class UserService {
   async login(
     loginUser: LoginUserDto,
   ): Promise<{ code: number; message: string; ticket?: string }> {
-    const { account, password, role } = loginUser;
+    const { userName, password } = loginUser;
+    // console.log(loginUser);
     const userData = await this.repo.findOne({
       where: {
-        account,
+        userName,
         password,
-        role,
       },
     });
     if (!userData) {
-      return {
-        code: ErrorCode.loginUserError.CODE,
-        message: ErrorCode.loginUserError.MESSAGE,
-      };
+      throw new CustomException({
+        errorCode: ErrorCode.loginUserError.CODE,
+      });
     } else {
       // switch(userData.status){
       //   case StatusType.success:{
@@ -78,74 +77,78 @@ export class UserService {
         return {
           code: ErrorCode.SUCCESS.CODE,
           message: ErrorCode.SUCCESS.MESSAGE,
-          ticket: userData?.ticket,
+          ticket: userData.ticket,
         };
       } else if (userData.status === StatusType.ShutDown) {
-        return {
-          code: ErrorCode.shutDownUserError.CODE,
-          message: ErrorCode.shutDownUserError.MESSAGE,
-        };
+        throw new CustomException({
+          errorCode: ErrorCode.shutDownUserError.CODE,
+        });
       } else if (userData.status === StatusType.applying) {
-        return {
-          code: ErrorCode.applyingUserError.CODE,
-          message: ErrorCode.applyingUserError.MESSAGE,
-        };
+        throw new CustomException({
+          errorCode: ErrorCode.applyingUserError.CODE,
+        });
       } else if (userData.status === StatusType.applyReject) {
-        return {
-          code: ErrorCode.applyRejectUserError.CODE,
-          message: ErrorCode.applyRejectUserError.MESSAGE,
-        };
+        throw new CustomException({
+          errorCode: ErrorCode.applyRejectUserError.CODE,
+        });
       }
     }
   }
   async getUserDataByTicket(ticket: string): Promise<User> {
-    return this.repo
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.rooms', 'room')
-      .where('user.ticket = :ticket', { ticket })
-      .getOne();
+    if (!ticket) {
+      throw new CustomException({
+        message: `没有ticket,${ticket}`,
+      });
+    }
+    const data = await this.repo.findOne({
+      where: {
+        ticket,
+      },
+    });
+    if (!data) {
+      throw new CustomException({
+        message: 'ticket不正确',
+      });
+    }
+    return plainToInstance(User, data);
   }
 
-  async getUserList(
-    userListDto: UserListDto,
-  ): Promise<IHttpResultPaginate<User>> {
-    const { page, limit, status, search } = userListDto;
+  async getUserList(userListDto: UserListDto): Promise<User[]> {
+    const { userName, contactInformation, status, role } = userListDto;
     const qb = this.repo.createQueryBuilder('user');
     if (status) {
-      qb.where('user.status = :status', { status });
+      qb.andWhere('user.status = :status', { status });
     }
-    if (search) {
-      const content = `%${search}%`;
+    if (role) {
+      qb.andWhere('user.role = :role', { role });
+    }
+    if (userName) {
+      const content = `%${userName}%`;
       qb.andWhere(
         new Brackets((q) => {
-          q.where('user.userName LIKE :content', { content }).orWhere(
-            'user.account LIKE :content',
-            { content },
-          );
+          q.where('user.userName LIKE :content', { content });
         }),
       );
     }
-    const [list, total] = await qb
-      .take(limit)
-      .skip(limit * (page - 1))
-      .orderBy('user.id', 'ASC')
-      .getManyAndCount();
-    return {
-      total,
-      perPage: limit,
-      currentPage: page,
-      lastPage: Math.ceil(total / limit),
-      list: plainToInstance(User, list),
-    };
+    if (contactInformation) {
+      const content = `%${contactInformation}%`;
+      qb.andWhere(
+        new Brackets((q) => {
+          q.where('user.contactInformation LIKE :content', { content });
+        }),
+      );
+    }
+    const data = await qb.getMany();
+    return plainToInstance(User, data);
   }
 
   async changeUserStatus(
     changeUserStatusDto: ChangeUserStatusDto,
   ): Promise<User> {
-    const { account, statusType } = changeUserStatusDto;
+    const { ticket, statusType } = changeUserStatusDto;
     const userData = await this.repo.findOne({
       where: {
-        account,
+        ticket,
       },
     });
     if (!userData) {
@@ -158,5 +161,20 @@ export class UserService {
       status: statusType,
     });
     return plainToInstance(User, saveData);
+  }
+
+  async saveUserInfo(ticket: string, password: string): Promise<User> {
+    const userInfo = await this.repo.findOne({
+      where: {
+        ticket,
+      },
+    });
+    console.log(123123123, password, { ...userInfo, password });
+    const data = await this.repo.save({
+      ...userInfo,
+      password,
+    });
+    console.log(data);
+    return data;
   }
 }

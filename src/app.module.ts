@@ -10,7 +10,11 @@ import { RoomModule } from './room/room.module';
 import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(typeormConfig as TypeOrmModule), UserModule,RoomModule],
+  imports: [
+    TypeOrmModule.forRoot(typeormConfig as TypeOrmModule),
+    UserModule,
+    RoomModule,
+  ],
   controllers: [],
   providers: [
     {
@@ -28,17 +32,17 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(SSOMiddleware)
-      .exclude({
-        path: '/user/create',
-        method: RequestMethod.POST,
-      },{
-        path: '/user/login',
-        method: RequestMethod.POST,
-      })
-      .forRoutes({
-        path: '*',
-        method: RequestMethod.ALL,
-      });
+      .exclude(
+        {
+          path: '/user/register',
+          method: RequestMethod.ALL,
+        },
+        {
+          path: '/user/login',
+          method: RequestMethod.ALL,
+        },
+      )
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
     consumer.apply(ClsMiddleware).forRoutes({
       path: '*',
       method: RequestMethod.ALL,

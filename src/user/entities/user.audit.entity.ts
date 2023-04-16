@@ -16,10 +16,10 @@ export enum AuditType {
 }
 
 export enum AuditStatus {
-    reject = -1, //拒绝
-    applying = 0, //审批中
-    success = 1 // 审批通过
-  }
+  reject = -1, //拒绝
+  applying = 0, //审批中
+  success = 1, // 审批通过
+}
 
 @Entity('property_real_estate_user_audit')
 export class UserAudit extends BaseEntity {
@@ -54,5 +54,5 @@ export class UserAudit extends BaseEntity {
     name: 'created_at',
   })
   @Transform(({ value }) => moment(value).format('YYYY.MM.DD HH:mm:ss'))
-  createAt: Date;
+  createdAt: Date;
 }

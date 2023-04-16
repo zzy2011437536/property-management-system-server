@@ -7,5 +7,5 @@ export const typeormConfig: TypeOrmModuleOptions = {
   password: 'wawj521333',
   database: 'property_real_estate',
   entities: [__dirname + '/../**/*.entity.{js,ts}'],
-  logging:true,
+  logging: true,
 };

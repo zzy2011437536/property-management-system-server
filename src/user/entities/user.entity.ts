@@ -8,15 +8,18 @@ import {
   PrimaryGeneratedColumn,
   ManyToMany,
   JoinTable,
+  BeforeInsert,
 } from 'typeorm';
 import { Exclude, Transform } from 'class-transformer';
 import * as moment from 'moment';
 import { Room } from 'src/room/entities/room.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 export enum Role {
   resident = 1,
-  staff = 2,
-  admin = 3,
+  cleaning = 2,
+  maintenance = 3,
+  admin = 4,
 }
 
 export enum StatusType {
@@ -41,14 +44,13 @@ export class User extends BaseEntity {
   @Column({
     name: 'contact_information',
   })
-  contactInformation: number;
+  contactInformation: string;
 
   @Column()
   zone: string;
 
   @Column({
-    name:'room_name',
-    default:''
+    name: 'room_name',
   })
   roomName: string;
 
@@ -56,9 +58,6 @@ export class User extends BaseEntity {
     default: Role.resident,
   })
   role: number;
-
-  @Column()
-  account: string;
 
   @Column()
   password: string;
@@ -72,7 +71,7 @@ export class User extends BaseEntity {
     name: 'created_at',
   })
   @Transform(({ value }) => moment(value).format('YYYY.MM.DD HH:mm:ss'))
-  createAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({
     name: 'updated_at',
@@ -80,21 +79,25 @@ export class User extends BaseEntity {
   @Transform(({ value }) => moment(value).format('YYYY.MM.DD HH:mm:ss'))
   updatedAt: Date;
 
-  @Exclude()
-  @Column('uuid')
+  @Column()
   ticket: string;
 
-  @ManyToMany(type => Room)
+  @ManyToMany((type) => Room)
   @JoinTable({
-      name: "property_real_estate_room__property_real_estate_user",
-      joinColumn: {
-          name: "user_id",
-          referencedColumnName: "id"
-      },
-      inverseJoinColumn: {
-          name: "room_id",
-          referencedColumnName: "id"
-      }
+    name: 'property_real_estate_room__property_real_estate_user',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'room_id',
+      referencedColumnName: 'id',
+    },
   })
   rooms: Room[];
+
+  @BeforeInsert()
+  insert() {
+    this.ticket = uuidv4();
+  }
 }

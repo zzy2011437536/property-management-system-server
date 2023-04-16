@@ -15,22 +15,26 @@ export interface IUserRequest extends Request {
 export class SSOMiddleware implements NestMiddleware {
   @Inject(UserService)
   private readonly userService: UserService;
-  private async checkLoginInfo(req: Request): Promise<{ userName: string,role:number,ticket:string }> {
+  private async checkLoginInfo(
+    req: Request,
+  ): Promise<{ userName: string; role: number; ticket: string }> {
     const ticket = req.headers['ticket'] || req.cookies['ticket'];
-    if(!ticket){
+    if (!ticket) {
       throw new CustomException({
-        message:'ticket为空,请重新登陆'
-      })
+        message: 'ticket为空,请重新登陆',
+      });
     }
+
     const userData = await this.userService.getUserDataByTicket(ticket);
-    if(!userData){
+
+    if (!userData) {
       throw new CustomException({
-        message:'身份信息失效,请重新登陆'
-      })
+        message: '身份信息失效,请重新登陆',
+      });
     }
     return {
       userName: userData.userName,
-      role:userData.role,
+      role: userData.role,
       ticket,
     };
   }
