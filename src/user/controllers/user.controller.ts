@@ -15,7 +15,6 @@ import { UserService } from '../services/user.service';
 import { Response, Request } from 'express';
 import { HttpStatus } from '@nestjs/common/enums';
 import { User } from '../entities/user.entity';
-import { IHttpResultPaginate } from '../services/audit-user.service';
 import { UserListDto } from '../dto/user-list.dto';
 import { RolesGuard } from '../guards/is-admin.guard';
 import { ChangeUserStatusDto } from '../dto/change-user-status.dto';

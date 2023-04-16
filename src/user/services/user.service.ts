@@ -7,8 +7,6 @@ import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisteredUser } from '../dto/registered-user.dto';
 import { StatusType, User } from '../entities/user.entity';
 import { getClsHookData } from 'src/utils/getClsHookData';
-import { AuditType, UserAudit } from '../entities/user.audit.entity';
-import { IHttpResultPaginate } from './audit-user.service';
 import { UserListDto } from '../dto/user-list.dto';
 import { plainToInstance } from 'class-transformer';
 import { ChangeUserStatusDto } from '../dto/change-user-status.dto';
@@ -16,9 +14,6 @@ import { ChangeUserStatusDto } from '../dto/change-user-status.dto';
 export class UserService {
   @InjectRepository(User)
   protected readonly repo: Repository<User>;
-
-  @InjectRepository(UserAudit)
-  protected readonly userAuditRepo: Repository<UserAudit>;
 
   private get userName(): string {
     return getClsHookData('userName');
@@ -39,13 +34,7 @@ export class UserService {
       ...RegisteredUser,
       status: StatusType.applying,
     });
-    const saveUserData = await this.repo.save(createUserData);
-    const createUserAuditData = this.userAuditRepo.create({
-      userId: saveUserData.id,
-      auditType: AuditType.createUser,
-      auditReason: '注册账号',
-    });
-    await this.userAuditRepo.save(createUserAuditData);
+    await this.repo.save(createUserData);
   }
 
   async login(
@@ -100,11 +89,16 @@ export class UserService {
         message: `没有ticket,${ticket}`,
       });
     }
-    const data = await this.repo.findOne({
-      where: {
-        ticket,
-      },
-    });
+    const data = await this.repo
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.rooms', 'room')
+      .where('user.ticket =:ticket', { ticket })
+      .getOne();
+    // const data = await this.repo.findOne({
+    //   where: {
+    //     ticket,
+    //   },
+    // });
     if (!data) {
       throw new CustomException({
         message: 'ticket不正确',
@@ -169,12 +163,19 @@ export class UserService {
         ticket,
       },
     });
-    console.log(123123123, password, { ...userInfo, password });
     const data = await this.repo.save({
       ...userInfo,
       password,
     });
     console.log(data);
     return data;
+  }
+
+  async getUserIdByUserName(userName: string): Promise<User> {
+    return this.repo.findOne({
+      where: {
+        userName,
+      },
+    });
   }
 }

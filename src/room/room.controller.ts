@@ -1,11 +1,11 @@
 import { Body, Controller, Inject, Post, UseGuards } from '@nestjs/common';
 import { RolesGuard } from 'src/user/guards/is-admin.guard';
-import { IHttpResultPaginate } from 'src/user/services/audit-user.service';
 import { RoomListDto } from './dto/room-list.dto';
 import { UpdateRoomInfoDto } from './dto/update-room-info-dto';
 import { RoomUser } from './entities/room-user.entity';
 import { Room } from './entities/room.entity';
 import { RoomService } from './services/room.service';
+import { User } from 'src/user/entities/user.entity';
 @Controller('/room')
 @UseGuards(RolesGuard)
 export class RoomController {
@@ -36,10 +36,10 @@ export class RoomController {
 
   @Post('/addUserInRoom')
   async addUserInRoom(
-    @Body('userId') userId: number,
+    @Body('userList') userList: string[],
     @Body('roomId') roomId: number,
-  ): Promise<RoomUser> {
-    return this.service.addUserInRoom(roomId, userId);
+  ): Promise<void> {
+    return this.service.addUserInRoom(roomId, userList);
   }
 
   @Post('/delUserInRoom')
@@ -48,5 +48,13 @@ export class RoomController {
     @Body('roomId') roomId: number,
   ): Promise<void> {
     return this.service.delUserInRoom(roomId, userId);
+  }
+
+  @Post('/getUserListFormAddUserInRoom')
+  async getUserListFormAddUserInRoom(
+    @Body('userName') userName: string,
+    @Body('roomId') roomId: number,
+  ): Promise<User[]> {
+    return this.service.getUserListFormAddUserInRoom(userName, roomId);
   }
 }

@@ -4,11 +4,11 @@ import { ErrorCode } from 'src/core/constants/error';
 import { CustomException } from 'src/core/exceptions/custom.exception';
 import { Brackets, Repository } from 'typeorm';
 import { plainToClass, plainToInstance } from 'class-transformer';
-import { Room } from '../entities/room.entity';
+import { Room, RoomStatusType } from '../entities/room.entity';
 import { UpdateRoomInfoDto } from '../dto/update-room-info-dto';
-import { IHttpResultPaginate } from 'src/user/services/audit-user.service';
 import { RoomListDto } from '../dto/room-list.dto';
 import { RoomUser } from '../entities/room-user.entity';
+import { User } from 'src/user/entities/user.entity';
 
 const map = new Map([
   [0, 'A'],
@@ -23,6 +23,9 @@ export class RoomService {
 
   @InjectRepository(RoomUser)
   protected readonly roomUserRepo: Repository<RoomUser>;
+
+  @InjectRepository(User)
+  protected readonly userRepo: Repository<User>;
 
   async addRoom(): Promise<any> {
     const arr = [];
@@ -62,7 +65,7 @@ export class RoomService {
   }
 
   async getRoomList(roomListDto: RoomListDto): Promise<Room[]> {
-    const { status, zone } = roomListDto;
+    const { status, zone, name } = roomListDto;
     const qb = this.repo.createQueryBuilder('room');
     if (status) {
       qb.where('room.status = :status', { status });
@@ -70,30 +73,76 @@ export class RoomService {
     if (zone) {
       qb.andWhere('room.zone = :zone', { zone });
     }
+    if (name) {
+      const content = `${name}%`;
+      qb.andWhere('room.name LIKE :content', { content });
+    }
     const data = await qb.getMany();
     return plainToInstance(Room, data);
   }
 
   async getRoomInfo(id: number): Promise<Room> {
-    return this.repo
+    const data = await this.repo
       .createQueryBuilder('room')
       .leftJoinAndSelect('room.users', 'user')
       .where('room.id = :id', { id })
       .getOne();
+    return plainToInstance(Room, data);
   }
 
-  async addUserInRoom(roomId: number, userId: number) {
-    const createData = this.roomUserRepo.create({
-      userId,
-      roomId,
+  async addUserInRoom(roomId: number, userList: string[]): Promise<void> {
+    const userInfos = await this.userRepo
+      .createQueryBuilder('user')
+      .where('user.userName IN (:...userList)', { userList })
+      .getMany();
+    const userIdList = userInfos.map((item) => item.id);
+    const createDataList = userIdList.map((item) => {
+      return this.roomUserRepo.create({
+        userId: item,
+        roomId,
+      });
     });
-    return this.roomUserRepo.save(createData);
+    await this.roomUserRepo.save(createDataList);
+    await this.repo.update({ id: roomId }, { status: RoomStatusType.soldOut });
   }
 
   async delUserInRoom(roomId: number, userId: number) {
     await this.roomUserRepo.delete({
       userId,
       roomId,
+    });
+    const count = await this.roomUserRepo.count({
+      where: {
+        roomId,
+      },
+    });
+    if (count === 0) {
+      await this.repo.update({ id: roomId }, { status: RoomStatusType.saling });
+    }
+  }
+
+  async getUserListFormAddUserInRoom(
+    userName: string,
+    roomId: number,
+  ): Promise<User[]> {
+    const qb = await this.repo
+      .createQueryBuilder('room')
+      .leftJoinAndSelect('room.users', 'user')
+      .where('room.id = :roomId', { roomId: roomId })
+      .getOne();
+    const oldUserList = qb.users.map((item) => item.userName);
+    const allUserList = [];
+    //获取用户列表
+    if (userName) {
+      const content = `${userName}%`;
+      const data = await this.userRepo
+        .createQueryBuilder('user')
+        .where('user.userName LIKE :content', { content })
+        .getMany();
+      allUserList.push(...data);
+    }
+    return allUserList.filter((item) => {
+      return !oldUserList.includes(item.userName);
     });
   }
 }

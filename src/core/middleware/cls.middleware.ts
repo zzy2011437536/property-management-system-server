@@ -9,9 +9,11 @@ export class ClsMiddleware implements NestMiddleware {
     clsNameSpace.bindEmitter(res);
     const userName = req.auth?.userName || 'zhuzhiyuan';
     const role = req.auth?.role || 1;
+    const userId = req.auth?.userId || 0;
     clsNameSpace.run(() => {
       clsNameSpace.set('userName', userName);
       clsNameSpace.set('role', role);
+      clsNameSpace.set('userId', userId);
       next();
     });
   }

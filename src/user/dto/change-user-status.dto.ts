@@ -1,5 +1,4 @@
 import { IsEnum, IsInt, IsOptional, IsString, Length } from 'class-validator';
-import { AuditStatus } from '../entities/user.audit.entity';
 import { Role, StatusType } from '../entities/user.entity';
 
 export class ChangeUserStatusDto {

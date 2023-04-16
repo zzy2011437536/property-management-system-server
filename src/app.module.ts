@@ -8,12 +8,18 @@ import { SSOMiddleware } from './core/middleware/auth.middleware';
 import { ClsMiddleware } from './core/middleware/cls.middleware';
 import { RoomModule } from './room/room.module';
 import { UserModule } from './user/user.module';
+import { ToolModule } from './tool/tool.module';
+import { EnvModule } from './env/env.module';
+import { BillModule } from './bill/bill.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeormConfig as TypeOrmModule),
     UserModule,
     RoomModule,
+    ToolModule,
+    EnvModule,
+    BillModule,
   ],
   controllers: [],
   providers: [

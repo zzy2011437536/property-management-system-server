@@ -6,6 +6,7 @@ import { CustomException } from '../exceptions/custom.exception';
 
 export interface IUserRequest extends Request {
   auth: {
+    userId: number;
     userName: string;
     ticket: string;
     role: number;
@@ -15,9 +16,12 @@ export interface IUserRequest extends Request {
 export class SSOMiddleware implements NestMiddleware {
   @Inject(UserService)
   private readonly userService: UserService;
-  private async checkLoginInfo(
-    req: Request,
-  ): Promise<{ userName: string; role: number; ticket: string }> {
+  private async checkLoginInfo(req: Request): Promise<{
+    userId: number;
+    userName: string;
+    role: number;
+    ticket: string;
+  }> {
     const ticket = req.headers['ticket'] || req.cookies['ticket'];
     if (!ticket) {
       throw new CustomException({
@@ -33,6 +37,7 @@ export class SSOMiddleware implements NestMiddleware {
       });
     }
     return {
+      userId: userData.id,
       userName: userData.userName,
       role: userData.role,
       ticket,
@@ -45,6 +50,7 @@ export class SSOMiddleware implements NestMiddleware {
   ): Promise<void> {
     if (!req.auth) {
       req.auth = {
+        userId: 0,
         userName: '',
         ticket: '',
         role: 1,
@@ -53,6 +59,7 @@ export class SSOMiddleware implements NestMiddleware {
 
     try {
       const loginInfo = await this.checkLoginInfo(req);
+      req.auth.userId = loginInfo.userId;
       req.auth.userName = loginInfo.userName;
       req.auth.role = loginInfo.role;
       req.auth.ticket = loginInfo.ticket;

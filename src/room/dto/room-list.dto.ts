@@ -13,4 +13,8 @@ export class RoomListDto {
     message: '房屋区不正确',
   })
   zone: RoomZoneType;
+
+  @IsOptional()
+  @IsString()
+  name: string;
 }
