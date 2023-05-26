@@ -11,6 +11,7 @@ import { UserModule } from './user/user.module';
 import { ToolModule } from './tool/tool.module';
 import { EnvModule } from './env/env.module';
 import { BillModule } from './bill/bill.module';
+import { PCModule } from './parkingCharge/pc.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { BillModule } from './bill/bill.module';
     ToolModule,
     EnvModule,
     BillModule,
+    PCModule,
   ],
   controllers: [],
   providers: [

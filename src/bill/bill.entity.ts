@@ -12,6 +12,7 @@ export enum BillType {
   tool = 1, //维修
   env = 2, //保洁
   parkingCharge = 3, //停车收费
+  payment = 4, //物业费
 }
 
 @Entity('property_real_eastate_bill')

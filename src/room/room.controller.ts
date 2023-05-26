@@ -7,7 +7,6 @@ import { Room } from './entities/room.entity';
 import { RoomService } from './services/room.service';
 import { User } from 'src/user/entities/user.entity';
 @Controller('/room')
-@UseGuards(RolesGuard)
 export class RoomController {
   @Inject(RoomService)
   protected readonly service: RoomService;
@@ -27,6 +26,11 @@ export class RoomController {
   @Post('/getRoomList')
   async getRoomList(@Body() roomListDto: RoomListDto): Promise<Room[]> {
     return this.service.getRoomList(roomListDto);
+  }
+
+  @Post('/getRoomListBySelf')
+  async getRoomListBySelf(): Promise<Room[]> {
+    return this.service.getRoomListBySelf();
   }
 
   @Post('/getRoomInfo')
@@ -56,5 +60,10 @@ export class RoomController {
     @Body('roomId') roomId: number,
   ): Promise<User[]> {
     return this.service.getUserListFormAddUserInRoom(userName, roomId);
+  }
+
+  @Post('/changePaymentStatus')
+  async changePaymentStatus(@Body('roomId') roomId: number): Promise<void> {
+    return this.service.changePaymentStatus(roomId);
   }
 }

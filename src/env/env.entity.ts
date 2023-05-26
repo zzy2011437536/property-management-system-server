@@ -13,13 +13,21 @@ import { User } from 'src/user/entities/user.entity';
 import { Room } from 'src/room/entities/room.entity';
 
 export enum EnvType {
-  local = 1, //局部
-  whole = 2, //整体
+  HouseholdCleaning = 1, //家庭清洁服务
+  CookingService = 2, //烹饪服务
+  HomeMaintenanceService = 3, //家居维护服务
+  PurchasingService = 4, //代购服务
+  BabysittingService = 5, //保姆服务
+  PetCareService = 6, //宠物照顾服务
 }
 
 export const AmountMap = {
-  [EnvType.local]: 50,
-  [EnvType.whole]: 200,
+  [EnvType.HouseholdCleaning]: 150,
+  [EnvType.CookingService]: 50,
+  [EnvType.HomeMaintenanceService]: 100,
+  [EnvType.PurchasingService]: 50,
+  [EnvType.BabysittingService]: 200,
+  [EnvType.PetCareService]: 100,
 };
 
 @Entity('property_real_eastate_env')

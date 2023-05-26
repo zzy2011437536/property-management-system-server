@@ -17,6 +17,7 @@ import { Room } from 'src/room/entities/room.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { Env } from 'src/env/env.entity';
 import { Tool } from 'src/tool/tool.entity';
+import { PC } from 'src/parkingCharge/pc.entity';
 
 export enum Role {
   resident = 1,
@@ -43,6 +44,11 @@ export class User extends BaseEntity {
     name: 'user_name',
   })
   userName: string;
+
+  @Column({
+    name: 'vip_level',
+  })
+  vipLevel: string;
 
   @Column({
     name: 'contact_information',
@@ -96,6 +102,9 @@ export class User extends BaseEntity {
 
   @OneToMany((type) => Tool, (tools) => tools.user)
   tools: Tool[];
+
+  @OneToMany((type) => PC, (parkings) => parkings.user)
+  parkings: PC[];
 
   @BeforeInsert()
   insert() {

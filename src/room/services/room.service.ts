@@ -9,6 +9,7 @@ import { UpdateRoomInfoDto } from '../dto/update-room-info-dto';
 import { RoomListDto } from '../dto/room-list.dto';
 import { RoomUser } from '../entities/room-user.entity';
 import { User } from 'src/user/entities/user.entity';
+import { getClsHookData } from 'src/utils/getClsHookData';
 
 const map = new Map([
   [0, 'A'],
@@ -26,6 +27,10 @@ export class RoomService {
 
   @InjectRepository(User)
   protected readonly userRepo: Repository<User>;
+
+  private get userId(): number {
+    return getClsHookData('userId');
+  }
 
   async addRoom(): Promise<any> {
     const arr = [];
@@ -79,6 +84,22 @@ export class RoomService {
     }
     const data = await qb.getMany();
     return plainToInstance(Room, data);
+  }
+
+  async getRoomListBySelf(): Promise<Room[]> {
+    //先查用户拥有的房屋
+    const userHasRoomInfoList = await this.roomUserRepo.find({
+      where: {
+        userId: this.userId,
+      },
+    });
+    const userRoomList = userHasRoomInfoList.map((item) => item.roomId);
+    if (userRoomList.length === 0) return [];
+    const roomList = await this.repo
+      .createQueryBuilder('r')
+      .where('r.id IN (:...userRoomList)', { userRoomList })
+      .getMany();
+    return plainToInstance(Room, roomList);
   }
 
   async getRoomInfo(id: number): Promise<Room> {
@@ -143,6 +164,12 @@ export class RoomService {
     }
     return allUserList.filter((item) => {
       return !oldUserList.includes(item.userName);
+    });
+  }
+
+  async changePaymentStatus(roomId: number): Promise<void> {
+    await this.repo.update(roomId, {
+      paymentStatus: 1,
     });
   }
 }

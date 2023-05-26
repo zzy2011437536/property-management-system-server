@@ -46,13 +46,15 @@ export class Room extends BaseEntity {
   @Column()
   area: number;
 
-  @Column()
-  description: string;
-
   @Column({
     name: 'sale_price',
   })
   salePrice: number;
+
+  @Column({
+    name: 'payment_status',
+  })
+  paymentStatus: 0 | 1;
 
   @CreateDateColumn({
     name: 'created_at',
