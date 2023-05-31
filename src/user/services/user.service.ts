@@ -18,6 +18,13 @@ export class UserService {
   private get userName(): string {
     return getClsHookData('userName');
   }
+  private get userId(): number {
+    return getClsHookData('userId');
+  }
+
+  private get vipLevel(): string {
+    return getClsHookData('vipLevel');
+  }
 
   async create(RegisteredUser: RegisteredUser): Promise<void> {
     const judgeUserExist = await this.repo.count({
@@ -176,6 +183,13 @@ export class UserService {
       where: {
         userName,
       },
+    });
+  }
+
+  async updateVip(): Promise<void> {
+    const vipLevel = this.vipLevel;
+    await this.repo.update(this.userId, {
+      vipLevel: `v${Number(vipLevel[1]) + 1}`,
     });
   }
 }

@@ -71,4 +71,9 @@ export class UserController {
   ): Promise<User> {
     return this.service.changeUserStatus(changeUserStatusDto);
   }
+
+  @Post('/updateVip')
+  async updateVip(): Promise<void> {
+    return this.service.updateVip();
+  }
 }
