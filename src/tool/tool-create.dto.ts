@@ -13,4 +13,7 @@ export class CreateToolDto {
   @IsNotEmpty()
   @IsInt()
   roomId: number;
+
+  @IsString()
+  description: string;
 }

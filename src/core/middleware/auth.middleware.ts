@@ -10,6 +10,7 @@ export interface IUserRequest extends Request {
     userName: string;
     ticket: string;
     role: number;
+    vipLevel: string;
   };
 }
 @Injectable()
@@ -21,6 +22,7 @@ export class SSOMiddleware implements NestMiddleware {
     userName: string;
     role: number;
     ticket: string;
+    vipLevel: string;
   }> {
     const ticket = req.headers['ticket'] || req.cookies['ticket'];
     if (!ticket) {
@@ -41,6 +43,7 @@ export class SSOMiddleware implements NestMiddleware {
       userName: userData.userName,
       role: userData.role,
       ticket,
+      vipLevel: userData.vipLevel,
     };
   }
   async use(
@@ -54,6 +57,7 @@ export class SSOMiddleware implements NestMiddleware {
         userName: '',
         ticket: '',
         role: 1,
+        vipLevel: 'v1',
       };
     }
 
@@ -63,6 +67,7 @@ export class SSOMiddleware implements NestMiddleware {
       req.auth.userName = loginInfo.userName;
       req.auth.role = loginInfo.role;
       req.auth.ticket = loginInfo.ticket;
+      req.auth.vipLevel = loginInfo.vipLevel;
       next();
     } catch (err) {
       next(err);

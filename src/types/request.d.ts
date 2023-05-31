@@ -6,6 +6,7 @@ declare module 'express' {
       userName: string;
       role: number;
       userId: number;
+      vipLevel: string;
     };
   }
 }

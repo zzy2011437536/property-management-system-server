@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AmountMap, Tool } from './tool.entity';
+import { AmountMap, Tool, vipLevel } from './tool.entity';
 import { Role } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
 import { getClsHookData } from 'src/utils/getClsHookData';
@@ -32,24 +32,23 @@ export class ToolService {
     return getClsHookData('userId');
   }
 
-  async create(createToolDto: CreateToolDto): Promise<void> {
-    const { type, tollGathererId, roomId } = createToolDto;
+  private get vipLevel(): string {
+    return getClsHookData('vipLevel');
+  }
 
+  async create(createToolDto: CreateToolDto): Promise<void> {
+    const { type, tollGathererId, roomId, description } = createToolDto;
+    console.log(123123, this.userId, AmountMap[type] * vipLevel[this.vipLevel]);
     const createData = this.repo.create({
       type,
-      amount: AmountMap[type],
+      amount: AmountMap[type] * vipLevel[this.vipLevel],
       roomId,
       userId: this.userId,
       tollGathererId,
+      description,
     });
 
-    const saveData = await this.repo.save(createData);
-    const billCreateData = this.billRepo.create({
-      userId: this.userId,
-      entityId: saveData.id,
-      type: BillType.tool,
-    });
-    await this.billRepo.save(billCreateData);
+    await this.repo.save(createData);
   }
 
   async getList(): Promise<Tool[]> {
@@ -77,6 +76,21 @@ export class ToolService {
     return this.repo.save({
       ...data,
       evaluation: rate,
+    });
+  }
+
+  async saveData(
+    id: number,
+    evaluation: number,
+    content: string,
+  ): Promise<void> {
+    const data = await this.repo.findOne({
+      where: { id },
+    });
+    await this.repo.save({
+      ...data,
+      evaluation,
+      content,
     });
   }
 }

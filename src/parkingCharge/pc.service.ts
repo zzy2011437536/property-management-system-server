@@ -72,7 +72,6 @@ export class PCService {
     //   );
     // }
     const data = await qb.getMany();
-    console.log(123123, data);
     return plainToInstance(PC, data);
   }
 

@@ -33,4 +33,13 @@ export class ToolController {
   ): Promise<Tool> {
     return this.service.changeRate(id, rate);
   }
+
+  @Post('/saveRate')
+  async saveRate(
+    @Body('id') id: number,
+    @Body('evaluation') evaluation: number,
+    @Body('content') content: string,
+  ): Promise<void> {
+    return this.service.saveData(id, evaluation, content);
+  }
 }

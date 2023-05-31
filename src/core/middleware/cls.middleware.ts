@@ -10,10 +10,12 @@ export class ClsMiddleware implements NestMiddleware {
     const userName = req.auth?.userName || 'zhuzhiyuan';
     const role = req.auth?.role || 1;
     const userId = req.auth?.userId || 0;
+    const vipLevel = req.auth?.vipLevel || 'v1';
     clsNameSpace.run(() => {
       clsNameSpace.set('userName', userName);
       clsNameSpace.set('role', role);
       clsNameSpace.set('userId', userId);
+      clsNameSpace.set('vipLevel', vipLevel);
       next();
     });
   }

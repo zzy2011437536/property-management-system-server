@@ -10,6 +10,7 @@ import { RoomListDto } from '../dto/room-list.dto';
 import { RoomUser } from '../entities/room-user.entity';
 import { User } from 'src/user/entities/user.entity';
 import { getClsHookData } from 'src/utils/getClsHookData';
+import { vipLevel } from 'src/tool/tool.entity';
 
 const map = new Map([
   [0, 'A'],
@@ -17,8 +18,12 @@ const map = new Map([
   [2, 'C'],
   [3, 'D'],
 ]);
+
 @Injectable()
 export class RoomService {
+  private get vipLevel(): string {
+    return getClsHookData('vipLevel');
+  }
   @InjectRepository(Room)
   protected readonly repo: Repository<Room>;
 
@@ -168,8 +173,14 @@ export class RoomService {
   }
 
   async changePaymentStatus(roomId: number): Promise<void> {
+    const roomInfo = await this.repo.findOne({
+      where: { id: roomId },
+    });
     await this.repo.update(roomId, {
       paymentStatus: 1,
+      amount: Number(
+        Number(roomInfo.area * 12 * vipLevel[this.vipLevel]).toFixed(2),
+      ),
     });
   }
 }

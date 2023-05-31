@@ -56,6 +56,9 @@ export class Room extends BaseEntity {
   })
   paymentStatus: 0 | 1;
 
+  @Column()
+  amount: number;
+
   @CreateDateColumn({
     name: 'created_at',
   })

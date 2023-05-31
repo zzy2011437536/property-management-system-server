@@ -23,11 +23,17 @@ export enum ToolType {
 
 export const AmountMap = {
   [ToolType.ElectricalMaintenance]: 100,
-  [ToolType.PipelineMaintenance]: 100,
+  [ToolType.PipelineMaintenance]: 120,
   [ToolType.WoodworkingMaintenance]: 50,
   [ToolType.PaintRepair]: 100,
   [ToolType.FurnitureMaintenance]: 50,
   [ToolType.LightingMaintenance]: 100,
+};
+
+export const vipLevel = {
+  v1: 1,
+  v2: 0.9,
+  v3: 0.8,
 };
 
 export const ToolTypeMap = {
@@ -65,6 +71,11 @@ export class Tool extends BaseEntity {
 
   @Column()
   amount: number;
+
+  @Column()
+  content: string;
+  @Column()
+  description: string;
 
   @Column()
   evaluation: number;
