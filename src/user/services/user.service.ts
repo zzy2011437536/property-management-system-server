@@ -5,7 +5,7 @@ import { CustomException } from 'src/core/exceptions/custom.exception';
 import { Brackets, Like, Repository } from 'typeorm';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisteredUser } from '../dto/registered-user.dto';
-import { StatusType, User } from '../entities/user.entity';
+import { User } from '../entities/user.entity';
 import { getClsHookData } from 'src/utils/getClsHookData';
 import { UserListDto } from '../dto/user-list.dto';
 import { plainToInstance } from 'class-transformer';
@@ -22,7 +22,7 @@ export class UserService {
   async create(RegisteredUser: RegisteredUser): Promise<void> {
     const judgeUserExist = await this.repo.count({
       where: {
-        userName: RegisteredUser.userName,
+        userName: RegisteredUser.username,
       },
     });
     if (judgeUserExist) {
@@ -32,14 +32,11 @@ export class UserService {
     }
     const createUserData = this.repo.create({
       ...RegisteredUser,
-      status: StatusType.applying,
     });
     await this.repo.save(createUserData);
   }
 
-  async login(
-    loginUser: LoginUserDto,
-  ): Promise<{ code: number; message: string; ticket?: string }> {
+  async login(loginUser: LoginUserDto): Promise<any> {
     const { userName, password } = loginUser;
     // console.log(loginUser);
     const userData = await this.repo.findOne({
@@ -48,40 +45,6 @@ export class UserService {
         password,
       },
     });
-    if (!userData) {
-      throw new CustomException({
-        errorCode: ErrorCode.loginUserError.CODE,
-      });
-    } else {
-      // switch(userData.status){
-      //   case StatusType.success:{
-      //     return {
-      //       code: ErrorCode.SUCCESS.CODE,
-      //       message: ErrorCode.SUCCESS.MESSAGE,
-      //       ticket: userData?.ticket,
-      //     }
-      //   }
-      // }
-      if (userData.status === StatusType.success) {
-        return {
-          code: ErrorCode.SUCCESS.CODE,
-          message: ErrorCode.SUCCESS.MESSAGE,
-          ticket: userData.ticket,
-        };
-      } else if (userData.status === StatusType.ShutDown) {
-        throw new CustomException({
-          errorCode: ErrorCode.shutDownUserError.CODE,
-        });
-      } else if (userData.status === StatusType.applying) {
-        throw new CustomException({
-          errorCode: ErrorCode.applyingUserError.CODE,
-        });
-      } else if (userData.status === StatusType.applyReject) {
-        throw new CustomException({
-          errorCode: ErrorCode.applyRejectUserError.CODE,
-        });
-      }
-    }
   }
   async getUserDataByTicket(ticket: string): Promise<User> {
     if (!ticket) {
@@ -108,7 +71,7 @@ export class UserService {
   }
 
   async getUserList(userListDto: UserListDto): Promise<User[]> {
-    const { userName, contactInformation, status, role } = userListDto;
+    const { userName, contactInformation, role } = userListDto;
     const qb = this.repo.createQueryBuilder('user');
     if (status) {
       qb.andWhere('user.status = :status', { status });
@@ -139,7 +102,7 @@ export class UserService {
   async changeUserStatus(
     changeUserStatusDto: ChangeUserStatusDto,
   ): Promise<User> {
-    const { ticket, statusType } = changeUserStatusDto;
+    const { ticket } = changeUserStatusDto;
     const userData = await this.repo.findOne({
       where: {
         ticket,
@@ -152,7 +115,6 @@ export class UserService {
     }
     const saveData = await this.repo.save({
       ...userData,
-      status: statusType,
     });
     return plainToInstance(User, saveData);
   }

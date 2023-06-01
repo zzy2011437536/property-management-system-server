@@ -16,13 +16,10 @@ export class RegisteredUser {
   @IsString({
     message: '请输入正确的姓名',
   })
-  readonly userName: string;
+  readonly username: string;
 
   @IsString({
     message: '密码格式不对',
-  })
-  @Length(6, 16, {
-    message: '密码长度不对',
   })
   password: string;
 
@@ -32,7 +29,7 @@ export class RegisteredUser {
   @IsString({
     message: '请输入正确的手机号',
   })
-  contactInformation: string;
+  contact: string;
 
   @IsEnum(Role, {
     message: '角色不正确',

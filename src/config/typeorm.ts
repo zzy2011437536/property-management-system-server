@@ -5,7 +5,7 @@ export const typeormConfig: TypeOrmModuleOptions = {
   port: 3306,
   username: 'root',
   password: 'wawj521333',
-  database: 'property_real_estate',
+  database: 'wyf-bishe',
   entities: [__dirname + '/../**/*.entity.{js,ts}'],
   logging: true,
 };

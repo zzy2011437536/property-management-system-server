@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Inject,
   Post,
   Req,
@@ -26,6 +27,11 @@ export class UserController {
   @Post('/register')
   async create(@Body() registeredUserDto: RegisteredUser): Promise<void> {
     return this.service.create(registeredUserDto);
+  }
+
+  @Get('/hello')
+  async create1(): Promise<any> {
+    return 'hello world';
   }
   @Post('/login')
   async login(

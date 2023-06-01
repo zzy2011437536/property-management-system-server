@@ -1,5 +1,5 @@
 import { IsEnum, IsInt, IsOptional, IsString, Length } from 'class-validator';
-import { Role, StatusType } from '../entities/user.entity';
+import { Role } from '../entities/user.entity';
 
 export class UserListDto {
   @IsOptional()
@@ -19,10 +19,4 @@ export class UserListDto {
     message: '角色不正确',
   })
   role: Role;
-
-  @IsOptional()
-  @IsEnum(StatusType, {
-    message: '用户状态不正确',
-  })
-  status: StatusType;
 }
