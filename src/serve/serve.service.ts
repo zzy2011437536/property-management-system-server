@@ -16,6 +16,10 @@ export class ServeService {
     return getClsHookData('userName');
   }
 
+  private get parent(): string {
+    return getClsHookData('parent');
+  }
+
   private get role(): number {
     return getClsHookData('role');
   }
@@ -49,6 +53,10 @@ export class ServeService {
     } else if (role === Role.fuwurenyuan) {
       return qb
         .where('serve.fuze = :userName', { userName: this.userName })
+        .getMany();
+    } else if (role === Role.laotouzinv) {
+      return qb
+        .where('serve.userName = :userName', { userName: this.parent })
         .getMany();
     }
     return qb.getMany();

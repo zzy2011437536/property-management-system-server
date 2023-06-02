@@ -35,4 +35,8 @@ export class RegisteredUser {
     message: '角色不正确',
   })
   role: Role;
+
+  @IsOptional()
+  @IsString()
+  parent?: string;
 }

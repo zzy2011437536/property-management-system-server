@@ -20,6 +20,10 @@ export class ActivityService {
     return getClsHookData('role');
   }
 
+  private get parent(): string {
+    return getClsHookData('parent');
+  }
+
   async create(
     userName: string,
     type: number,
@@ -37,12 +41,18 @@ export class ActivityService {
     await this.repo.save(createData);
   }
 
-  async getActivityList():Promise<Activity[]>{
-    const role = this.role
-    const qb = this.repo.createQueryBuilder('activity')
-    if(role===Role.laotou){
-        return qb.where('activity.userName = :userName',{userName:this.userName}).getMany()
+  async getActivityList(): Promise<Activity[]> {
+    const role = this.role;
+    const qb = this.repo.createQueryBuilder('activity');
+    if (role === Role.laotou) {
+      return qb
+        .where('activity.userName = :userName', { userName: this.userName })
+        .getMany();
+    } else if (role === Role.laotouzinv) {
+      return qb
+        .where('activity.userName = :userName', { userName: this.parent })
+        .getMany();
     }
-    return qb.getMany()
+    return qb.getMany();
   }
 }

@@ -27,6 +27,7 @@ export class Activity extends BaseEntity {
 
   @Column()
   type: number;
+
   @Column()
   time: string;
   @Column()

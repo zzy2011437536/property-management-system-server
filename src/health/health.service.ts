@@ -17,6 +17,10 @@ export class HealthService {
     return getClsHookData('userName');
   }
 
+  private get parent(): string {
+    return getClsHookData('parent');
+  }
+
   private get role(): number {
     return getClsHookData('role');
   }
@@ -60,6 +64,10 @@ export class HealthService {
     if (role === Role.laotou) {
       return qb
         .where('health.userName = :userName', { userName: this.userName })
+        .getMany();
+    } else if (role === Role.laotouzinv) {
+      return qb
+        .where('health.userName = :userName', { userName: this.parent })
         .getMany();
     }
     return qb.getMany();
