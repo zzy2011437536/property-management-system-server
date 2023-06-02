@@ -13,18 +13,9 @@ import {
 } from 'typeorm';
 import { Exclude, Transform } from 'class-transformer';
 import * as moment from 'moment';
-import { v4 as uuidv4 } from 'uuid';
 
-export enum Role {
-  laotou = 1,
-  laotouzinv = 2,
-  fuwurenyuan = 3,
-  yiliaorenyuan = 4,
-  admin = 5,
-}
-
-@Entity('user')
-export class User extends BaseEntity {
+@Entity('health')
+export class Health extends BaseEntity {
   @PrimaryGeneratedColumn()
   @Transform(({ value }) => Number(value))
   id: number;
@@ -33,27 +24,17 @@ export class User extends BaseEntity {
     name: 'user_name',
   })
   userName: string;
+  @Column()
+  breath: string;
+  @Column()
+  rate: string;
+  @Column()
+  temperature: string;
+  @Column()
+  lpressure: string;
+  @Column()
+  hpressure: string;
 
   @Column()
-  contact: string;
-
-  @Column()
-  role: Role;
-
-  @Column()
-  password: string;
-
-  @Column()
-  ticket: string;
-  @Column()
-  sex: number;
-  @Column()
-  age: number;
-  @Column()
-  addr: string;
-
-  @BeforeInsert()
-  insert() {
-    this.ticket = uuidv4();
-  }
+  state: number;
 }

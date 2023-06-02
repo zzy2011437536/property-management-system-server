@@ -9,7 +9,6 @@ import { User } from '../entities/user.entity';
 import { getClsHookData } from 'src/utils/getClsHookData';
 import { UserListDto } from '../dto/user-list.dto';
 import { plainToInstance } from 'class-transformer';
-import { ChangeUserStatusDto } from '../dto/change-user-status.dto';
 @Injectable()
 export class UserService {
   @InjectRepository(User)
@@ -22,7 +21,7 @@ export class UserService {
   async create(RegisteredUser: RegisteredUser): Promise<void> {
     const judgeUserExist = await this.repo.count({
       where: {
-        userName: RegisteredUser.username,
+        userName: RegisteredUser.userName,
       },
     });
     if (judgeUserExist) {
@@ -45,6 +44,13 @@ export class UserService {
         password,
       },
     });
+    if (userData) {
+      return userData;
+    } else {
+      throw new CustomException({
+        message: '用户或密码错误',
+      });
+    }
   }
   async getUserDataByTicket(ticket: string): Promise<User> {
     if (!ticket) {
@@ -71,11 +77,8 @@ export class UserService {
   }
 
   async getUserList(userListDto: UserListDto): Promise<User[]> {
-    const { userName, contactInformation, role } = userListDto;
+    const { userName, contact, role } = userListDto;
     const qb = this.repo.createQueryBuilder('user');
-    if (status) {
-      qb.andWhere('user.status = :status', { status });
-    }
     if (role) {
       qb.andWhere('user.role = :role', { role });
     }
@@ -87,57 +90,15 @@ export class UserService {
         }),
       );
     }
-    if (contactInformation) {
-      const content = `%${contactInformation}%`;
+    if (contact) {
+      const content = `%${contact}%`;
       qb.andWhere(
         new Brackets((q) => {
-          q.where('user.contactInformation LIKE :content', { content });
+          q.where('user.contact LIKE :content', { content });
         }),
       );
     }
     const data = await qb.getMany();
     return plainToInstance(User, data);
-  }
-
-  async changeUserStatus(
-    changeUserStatusDto: ChangeUserStatusDto,
-  ): Promise<User> {
-    const { ticket } = changeUserStatusDto;
-    const userData = await this.repo.findOne({
-      where: {
-        ticket,
-      },
-    });
-    if (!userData) {
-      throw new CustomException({
-        message: '账号不存在',
-      });
-    }
-    const saveData = await this.repo.save({
-      ...userData,
-    });
-    return plainToInstance(User, saveData);
-  }
-
-  async saveUserInfo(ticket: string, password: string): Promise<User> {
-    const userInfo = await this.repo.findOne({
-      where: {
-        ticket,
-      },
-    });
-    const data = await this.repo.save({
-      ...userInfo,
-      password,
-    });
-    console.log(data);
-    return data;
-  }
-
-  async getUserIdByUserName(userName: string): Promise<User> {
-    return this.repo.findOne({
-      where: {
-        userName,
-      },
-    });
   }
 }

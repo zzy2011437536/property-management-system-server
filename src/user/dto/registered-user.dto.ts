@@ -16,7 +16,7 @@ export class RegisteredUser {
   @IsString({
     message: '请输入正确的姓名',
   })
-  readonly username: string;
+  readonly userName: string;
 
   @IsString({
     message: '密码格式不对',

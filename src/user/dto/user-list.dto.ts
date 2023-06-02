@@ -12,7 +12,7 @@ export class UserListDto {
   @IsString({
     message: '联系方式格式不正确',
   })
-  contactInformation: string;
+  contact: string;
 
   @IsOptional()
   @IsEnum(Role, {

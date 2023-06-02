@@ -29,10 +29,6 @@ export class UserController {
     return this.service.create(registeredUserDto);
   }
 
-  @Get('/hello')
-  async create1(): Promise<any> {
-    return 'hello world';
-  }
   @Post('/login')
   async login(
     @Body() loginUser: LoginUserDto,
@@ -56,25 +52,8 @@ export class UserController {
     return this.service.getUserDataByTicket(ticket);
   }
 
-  //TODO 后续想想可以保存其他数据
-  @Post('/saveUserInfo')
-  async saveUserInfo(
-    @Body('ticket') ticket: string,
-    @Body('password') password: string,
-  ): Promise<User> {
-    return this.service.saveUserInfo(ticket, password);
-  }
-
   @Post('/getUserList')
   async getUserList(@Body() userListDto: UserListDto): Promise<User[]> {
     return this.service.getUserList(userListDto);
-  }
-
-  @Post('/changeUserStatus')
-  @UseGuards(RolesGuard)
-  async changeUserStatus(
-    @Body() changeUserStatusDto: ChangeUserStatusDto,
-  ): Promise<User> {
-    return this.service.changeUserStatus(changeUserStatusDto);
   }
 }

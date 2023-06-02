@@ -7,9 +7,20 @@ import { TransformResInterceptor } from './core/interceptors/transform-res.inter
 import { SSOMiddleware } from './core/middleware/auth.middleware';
 import { ClsMiddleware } from './core/middleware/cls.middleware';
 import { UserModule } from './user/user.module';
+import { ActivityModule } from './activity/activity.module';
+import { ConsultationModule } from './consultation/consultation.module';
+import { HealthModule } from './health/health.module';
+import { ServeModule } from './serve/serve.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(typeormConfig as TypeOrmModule), UserModule],
+  imports: [
+    TypeOrmModule.forRoot(typeormConfig as TypeOrmModule),
+    UserModule,
+    ActivityModule,
+    ConsultationModule,
+    HealthModule,
+    ServeModule,
+  ],
   controllers: [],
   providers: [
     {
