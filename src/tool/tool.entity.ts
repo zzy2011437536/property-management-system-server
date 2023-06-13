@@ -86,6 +86,14 @@ export class Tool extends BaseEntity {
   @Transform(({ value }) => moment(value).format('YYYY.MM.DD HH:mm:ss'))
   createdAt: Date;
 
+  @Column({
+    name: 'bill_number',
+  })
+  billNumber: string;
+
+  @Column()
+  state: number;
+
   @ManyToOne((type) => User, (user) => user.tools)
   @JoinColumn({ referencedColumnName: 'id', name: 'user_id' })
   user: User;

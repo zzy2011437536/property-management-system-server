@@ -8,6 +8,7 @@ import { getClsHookData } from 'src/utils/getClsHookData';
 import { CreateToolDto } from './tool-create.dto';
 import { Bill, BillType } from 'src/bill/bill.entity';
 import { plainToInstance } from 'class-transformer';
+import * as moment from 'moment';
 
 @Injectable()
 export class ToolService {
@@ -47,8 +48,21 @@ export class ToolService {
       tollGathererId,
       description,
     });
-
-    await this.repo.save(createData);
+    const saveData = await this.repo.save(createData);
+    const time = moment().format('YYYYMMDD');
+    let number = '' + createData.id;
+    if (+number < 10) {
+      number = '000' + number;
+    } else if (+number < 100) {
+      number = '00' + number;
+    } else if (+number < 1000) {
+      number = '0' + number;
+    }
+    const str = time + '1' + number;
+    await this.repo.save({
+      ...saveData,
+      billNumber: str,
+    });
   }
 
   async getList(): Promise<Tool[]> {
@@ -57,13 +71,16 @@ export class ToolService {
       .leftJoinAndSelect('tool.user', 'user')
       .leftJoinAndSelect('tool.tollGatherer', 'tollGatherer')
       .leftJoinAndSelect('tool.room', 'room');
+    console.log(111111, this.role);
     if (this.role === Role.admin) {
-    } else if (this.role === Role.cleaning) {
+    } else if (this.role === Role.maintenance) {
+      console.log(111111, this.role);
       qb.where('tool.tollGathererId =:id', { id: this.userId });
     } else if (this.role === Role.resident) {
       qb.where('tool.userId =:id', { id: this.userId });
     }
     const data = await qb.getMany();
+    console.log(123123213, this.userId, data);
     return plainToInstance(Tool, data);
   }
 
@@ -91,6 +108,12 @@ export class ToolService {
       ...data,
       evaluation,
       content,
+    });
+  }
+
+  async changeState(id: number, state: number): Promise<void> {
+    await this.repo.update(id, {
+      state,
     });
   }
 }

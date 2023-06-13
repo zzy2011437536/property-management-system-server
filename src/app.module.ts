@@ -9,7 +9,6 @@ import { ClsMiddleware } from './core/middleware/cls.middleware';
 import { RoomModule } from './room/room.module';
 import { UserModule } from './user/user.module';
 import { ToolModule } from './tool/tool.module';
-import { EnvModule } from './env/env.module';
 import { BillModule } from './bill/bill.module';
 import { PCModule } from './parkingCharge/pc.module';
 import { ComplaintModule } from './complaint/complaint.module';
@@ -20,7 +19,6 @@ import { ComplaintModule } from './complaint/complaint.module';
     UserModule,
     RoomModule,
     ToolModule,
-    EnvModule,
     BillModule,
     PCModule,
     ComplaintModule,

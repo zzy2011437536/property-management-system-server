@@ -42,4 +42,12 @@ export class ToolController {
   ): Promise<void> {
     return this.service.saveData(id, evaluation, content);
   }
+
+  @Post('/changeState')
+  async changeState(
+    @Body('id') id: number,
+    @Body('state') state: number,
+  ): Promise<void> {
+    return this.service.changeState(id, state);
+  }
 }

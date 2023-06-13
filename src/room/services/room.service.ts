@@ -11,6 +11,7 @@ import { RoomUser } from '../entities/room-user.entity';
 import { User } from 'src/user/entities/user.entity';
 import { getClsHookData } from 'src/utils/getClsHookData';
 import { vipLevel } from 'src/tool/tool.entity';
+import * as moment from 'moment';
 
 const map = new Map([
   [0, 'A'],
@@ -176,11 +177,22 @@ export class RoomService {
     const roomInfo = await this.repo.findOne({
       where: { id: roomId },
     });
+    const time = moment().format('YYYYMMDD');
+    let number = '' + roomId;
+    if (+number < 10) {
+      number = '000' + number;
+    } else if (+number < 100) {
+      number = '00' + number;
+    } else if (+number < 1000) {
+      number = '0' + number;
+    }
+    const str = time + '2' + number;
     await this.repo.update(roomId, {
       paymentStatus: 1,
       amount: Number(
         Number(roomInfo.area * 12 * vipLevel[this.vipLevel]).toFixed(2),
       ),
+      propertyBillingNumber: str,
     });
   }
 }

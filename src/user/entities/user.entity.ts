@@ -15,7 +15,6 @@ import { Exclude, Transform } from 'class-transformer';
 import * as moment from 'moment';
 import { Room } from 'src/room/entities/room.entity';
 import { v4 as uuidv4 } from 'uuid';
-import { Env } from 'src/env/env.entity';
 import { Tool } from 'src/tool/tool.entity';
 import { PC } from 'src/parkingCharge/pc.entity';
 
@@ -54,6 +53,11 @@ export class User extends BaseEntity {
     name: 'contact_information',
   })
   contactInformation: string;
+
+  @Column({
+    name: 'subscriber_number',
+  })
+  subscriberNumber: string;
 
   @Column({
     default: Role.resident,
@@ -96,9 +100,6 @@ export class User extends BaseEntity {
     },
   })
   rooms: Room[];
-
-  @OneToMany((type) => Env, (envs) => envs.user)
-  envs: Env[];
 
   @OneToMany((type) => Tool, (tools) => tools.user)
   tools: Tool[];

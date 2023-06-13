@@ -10,6 +10,8 @@ import { getClsHookData } from 'src/utils/getClsHookData';
 import { UserListDto } from '../dto/user-list.dto';
 import { plainToInstance } from 'class-transformer';
 import { ChangeUserStatusDto } from '../dto/change-user-status.dto';
+import { format } from 'path';
+import moment from 'moment';
 @Injectable()
 export class UserService {
   @InjectRepository(User)
@@ -41,7 +43,22 @@ export class UserService {
       ...RegisteredUser,
       status: StatusType.applying,
     });
-    await this.repo.save(createUserData);
+
+    const saveData = await this.repo.save(createUserData);
+    const time = moment().format('YYYYMMDD');
+    let number = '' + saveData.id;
+    if (+number < 10) {
+      number = '000' + number;
+    } else if (+number < 100) {
+      number = '00' + number;
+    } else if (+number < 1000) {
+      number = '0' + number;
+    }
+    const str = time + String(createUserData.role) + number;
+    await this.repo.save({
+      ...saveData,
+      subscriberNumber: str,
+    });
   }
 
   async login(

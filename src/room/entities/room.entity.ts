@@ -14,7 +14,6 @@ import { Transform } from 'class-transformer';
 import * as moment from 'moment';
 import { User } from 'src/user/entities/user.entity';
 import { Tool } from 'src/tool/tool.entity';
-import { Env } from 'src/env/env.entity';
 
 export enum RoomStatusType {
   saling = 0, // 出售中
@@ -52,6 +51,11 @@ export class Room extends BaseEntity {
   salePrice: number;
 
   @Column({
+    name: 'property_billing_number',
+  })
+  propertyBillingNumber: string;
+
+  @Column({
     name: 'payment_status',
   })
   paymentStatus: 0 | 1;
@@ -87,7 +91,4 @@ export class Room extends BaseEntity {
 
   @OneToMany((type) => Tool, (tools) => tools.room)
   tools: Tool[];
-
-  @OneToMany((type) => Env, (envs) => envs.room)
-  envs: Env[];
 }
